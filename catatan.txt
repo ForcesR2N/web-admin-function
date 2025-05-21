@@ -1,0 +1,15 @@
+Catatan  WEB :
+
+// 1. Dibuatkan 1 admin atas nama Sekretariat Bappeda(dbinput)
+// 2. Pada bagian form booking pada kolom asal bidang dibuatkan menjadi input (bukan dropdown)(db)
+// 3. Pada form booking ditambahkan inputan untuk mengisi jumlah peserta(db) 
+// 4. Preview jam dibuat jam Indonesia (jangan yg AM/PM) contoh : 09.00 (jam dan menit saja)
+// 5. Hasil download rekap data secara keseluruhan tetapi dipisah antar nama ruangannya(js) #bedasheet
+// 6. Bagian preview acara dibuatkan memanjang kebawah jangan kesamping (karena bisa jadi nama acaranya Panjang)(done)
+// 7. Pada kolom preview "asal bidang" diganti menjadi "pengguna" dan Waktu mulai, Waktu selesai diganti menjadi "mulai", "selesai" (gausa ada "Waktu" nya)(tabel)
+// 8. Nama ruang diganti menjadi "ruang" dan nama penanggung jawab diubah menjadi "penanggungjawab"(tabel)
+// 9. Nama web diubah menjadi sipijar (done)
+// 10. Fontnya buat judul judul pake bold, yang judul didalam tabel dibuat semibold/regular, penjelasannya pakai light, nama ruang diluar table pakai huruf kapital.(view)
+11. Warna web dipatenkan menjadi hitam.(viewcss)
+// 12. Tombol buat download datanya dibuat jadi file excel(js,c)
+13. logic penjadwal
