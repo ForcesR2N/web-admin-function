@@ -4,9 +4,127 @@
             {{ Auth::user()->role == 'admin' ? __('Dashboard Administrator') : __('Dashboard User') }}
         </h2>
     </x-slot>
-    
+
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            {{-- Mobile Booking Requests Summary Card --}}
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mb-6">
+                <div class="p-6 text-gray-900 dark:text-gray-100">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Mobile App Booking Requests</h3>
+                        <a href="{{ route('mobile-bookings.index') }}" class="px-4 py-2 bg-blue-600 rounded-md text-white text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200">
+                            View All
+                        </a>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border-l-4 border-yellow-500">
+                            <div class="flex items-center">
+                                <div class="p-3 rounded-full bg-yellow-500 bg-opacity-10 text-yellow-500 mr-4">
+                                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Pending</p>
+                                    <p class="text-2xl font-bold text-gray-800 dark:text-white">{{ App\Models\MobileBooking::where('status', 'pending')->count() }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border-l-4 border-green-500">
+                            <div class="flex items-center">
+                                <div class="p-3 rounded-full bg-green-500 bg-opacity-10 text-green-500 mr-4">
+                                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Approved</p>
+                                    <p class="text-2xl font-bold text-gray-800 dark:text-white">{{ App\Models\MobileBooking::where('status', 'approved')->count() }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 border-l-4 border-red-500">
+                            <div class="flex items-center">
+                                <div class="p-3 rounded-full bg-red-500 bg-opacity-10 text-red-500 mr-4">
+                                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">Rejected</p>
+                                    <p class="text-2xl font-bold text-gray-800 dark:text-white">{{ App\Models\MobileBooking::where('status', 'rejected')->count() }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if(App\Models\MobileBooking::where('status', 'pending')->count() > 0)
+                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
+                                <h4 class="text-md font-medium text-gray-800 dark:text-white">Pending Requests</h4>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600">
+                                    <thead class="bg-gray-50 dark:bg-gray-700">
+                                        <tr>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">ID</th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Venue</th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">User</th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Date</th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Capacity</th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-600">
+                                        @foreach(App\Models\MobileBooking::where('status', 'pending')->orderBy('created_at', 'desc')->take(5)->get() as $booking)
+                                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">#{{ $booking->id }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-white">{{ $booking->venue_name }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{{ $booking->user_name }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{{ $booking->start_date->format('d M Y') }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{{ $booking->capacity }} people</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    <div class="flex space-x-2">
+                                                        <form action="{{ route('mobile-bookings.approve', $booking) }}" method="POST">
+                                                            @csrf
+                                                            @method('PUT')
+                                                            <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-medium py-1 px-3 rounded text-xs transition-colors duration-200">
+                                                                Approve
+                                                            </button>
+                                                        </form>
+                                                        <form action="{{ route('mobile-bookings.reject', $booking) }}" method="POST">
+                                                            @csrf
+                                                            @method('PUT')
+                                                            <button type="submit" class="bg-red-500 hover:bg-red-600 text-white font-medium py-1 px-3 rounded text-xs transition-colors duration-200">
+                                                                Reject
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 text-right">
+                                <a href="{{ route('mobile-bookings.index') }}" class="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">View all pending requests →</a>
+                            </div>
+                        </div>
+                    @else
+                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center">
+                            <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">All caught up!</h3>
+                            <p class="text-gray-500 dark:text-gray-400">No pending booking requests to review.</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
             {{-- carousel --}}
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 @php
@@ -24,14 +142,14 @@
                         </div>
                         @endforeach
                     </div>
-                    
+
                     <!-- Slider indicators -->
                     <div class="absolute z-30 flex -translate-x-1/2 bottom-5 left-1/2 space-x-3 rtl:space-x-reverse">
                         @foreach ($carousel as $index => $r)
                         <button type="button" class="w-3 h-3 rounded-full" aria-current="{{ $index === 0 ? 'true' : 'false' }}" aria-label="Slide {{ $index + 1 }}" data-carousel-slide-to="{{ $index }}"></button>
                         @endforeach
                     </div>
-                    
+
                     <!-- Slider controls -->
                     <button type="button" class="absolute top-0 left-0 z-30 flex items-center justify-center h-full px-4 cursor-pointer group focus:outline-none" data-carousel-prev>
                         <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/30 dark:bg-gray-800/30 group-hover:bg-white/50 dark:group-hover:bg-gray-800/60 group-focus:ring-4 group-focus:ring-white dark:group-focus:ring-gray-800/70 group-focus:outline-none">
@@ -52,91 +170,102 @@
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mt-4 p-4">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mt-6 p-6">
                 @php
                     $jadwal = \App\Models\Event::whereBetween('date', [now(), now()->addDays(7)])->get();
                 @endphp
-                <div class="p-4 relative overflow-x-auto shadow-md sm:rounded-lg mb-8">
+                <div class="p-0 relative overflow-x-auto sm:rounded-lg mb-2">
                     <h3 class="uppercase text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">Jadwal Kegiatan 7 Hari Kedepan</h3>
-                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                        <thead class="bg-gray-50 dark:bg-gray-700">
-                            <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-200 uppercase tracking-wider max-w-acara">
-                                    Acara
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-200 uppercase tracking-wider">
-                                    Jumlah Peserta
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-200 uppercase tracking-wider">
-                                    Ruang
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-200 uppercase tracking-wider">
-                                    Penanggung Jawab
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-200 uppercase tracking-wider">
-                                    Pengguna
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-200 uppercase tracking-wider">
-                                    Tanggal
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-200 uppercase tracking-wider">
-                                    Mulai
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-200 uppercase tracking-wider">
-                                    Selesai
-                                </th>
-                                @if (Auth::user()->role == 'admin')
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-200 uppercase tracking-wider">
-                                    Action
-                                </th>
-                                @endif
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                            @foreach ($jadwal as $booking)
-                            <tr>
-                                <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-200 max-w-acara">
-                                    {{ $booking->acara }}
-                                </td>
-                                <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-200">
-                                    {{ $booking->peserta }}
-                                </td>
-                                <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-200">
-                                    {{ $booking->nama_rooms }}
-                                </td>
-                                <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-200">
-                                    {{ $booking->nama }}
-                                </td>
-                                <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-200">
-                                    {{ $booking->asalbidang }}
-                                </td>
-                                <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-200">
-                                    {{ \Carbon\Carbon::parse($booking->date)->format('d-m-Y') }}
-                                </td>
-                                <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-200">
-                                    {{ $booking->start }}
-                                </td>
-                                <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-200">
-                                    {{ $booking->finish }}
-                                </td>
-                                @if (Auth::user()->role == 'admin')
-                                <td class="px-6 py-4 text-right text-sm font-medium">
-                                    <div class="flex">
-                                        <a href="{{ route('booking.edit', $booking) }}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
-                                        <form action="{{ route('booking.destroy', $booking) }}" method="POST" style="display:inline;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:text-red-900 ml-2">Delete</button>
-                                        </form>
-                                    </div>
-                                </td>
-                                @endif
-                            </tr>
-                            @endforeach                        
-                        </tbody>
-                    </table>
+
+                    @if($jadwal->count() > 0)
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-200 uppercase tracking-wider max-w-acara">
+                                        Acara
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-200 uppercase tracking-wider">
+                                        Peserta
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-200 uppercase tracking-wider">
+                                        Ruang
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-200 uppercase tracking-wider">
+                                        Penanggungjawab
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-200 uppercase tracking-wider">
+                                        Pengguna
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-200 uppercase tracking-wider">
+                                        Tanggal
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-200 uppercase tracking-wider">
+                                        Mulai
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-200 uppercase tracking-wider">
+                                        Selesai
+                                    </th>
+                                    @if (Auth::user()->role == 'admin')
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-200 uppercase tracking-wider">
+                                        Action
+                                    </th>
+                                    @endif
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                @foreach ($jadwal as $booking)
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-200 max-w-acara">
+                                        {{ $booking->acara }}
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-200">
+                                        {{ $booking->peserta }}
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-200">
+                                        {{ $booking->nama_rooms }}
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-200">
+                                        {{ $booking->nama }}
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-200">
+                                        {{ $booking->asalbidang }}
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-200">
+                                        {{ \Carbon\Carbon::parse($booking->date)->format('d-m-Y') }}
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-200">
+                                        {{ $booking->start }}
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-200">
+                                        {{ $booking->finish }}
+                                    </td>
+                                    @if (Auth::user()->role == 'admin')
+                                    <td class="px-6 py-4 text-right text-sm font-medium">
+                                        <div class="flex">
+                                            <a href="{{ route('booking.edit', $booking) }}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
+                                            <form action="{{ route('booking.destroy', $booking) }}" method="POST" style="display:inline;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-red-600 hover:text-red-900 ml-2">Delete</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                    @endif
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @else
+                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center">
+                            <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Tidak ada jadwal</h3>
+                            <p class="text-gray-500 dark:text-gray-400">Tidak ada jadwal kegiatan untuk 7 hari ke depan.</p>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
     </div>
-</x-app-layout>
+</x-app-layout>11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10
