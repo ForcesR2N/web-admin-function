@@ -1,5 +1,3 @@
-{{-- resources/views/bookings/index.blade.php --}}
-
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
@@ -90,8 +88,33 @@
                         </div>
                     @endif
 
+                    <!-- FastAPI Connection Status -->
+                    <div class="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <h3 class="font-medium text-gray-900 dark:text-white mb-2">FastAPI Backend Status</h3>
+                        <div class="flex items-center">
+                            @if(isset($error))
+                                <div class="flex items-center text-red-600">
+                                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>Connection Error: {{ $error }}</span>
+                                </div>
+                            @else
+                                <div class="flex items-center text-green-600">
+                                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span>Connected to FastAPI Backend</span>
+                                </div>
+                            @endif
+                        </div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                            URL: {{ env('FASTAPI_URL', 'http://127.0.0.1:8001/api') }}
+                        </p>
+                    </div>
+
                     <!-- Bookings Table -->
-                    @if(isset($bookings) && $bookings->count() > 0)
+                    @if(isset($bookings) && count($bookings) > 0)
                         <div class="overflow-x-auto relative">
                             <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                                 <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-gray-700 dark:text-gray-400">
@@ -108,41 +131,41 @@
                                 <tbody>
                                     @foreach($bookings as $booking)
                                         <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                            <td class="py-4 px-6 font-medium">#{{ $booking->id }}</td>
+                                            <td class="py-4 px-6 font-medium">#{{ $booking['id'] }}</td>
                                             <td class="py-4 px-6">
                                                 <div class="font-medium text-gray-900 dark:text-white">
-                                                    {{ $booking->place->name ?? 'Unknown Venue' }}
+                                                    {{ $booking['place']['name'] ?? 'Unknown Venue' }}
                                                 </div>
-                                                <div class="text-xs text-gray-500">ID: {{ $booking->place_id }}</div>
+                                                <div class="text-xs text-gray-500">ID: {{ $booking['place_id'] }}</div>
                                             </td>
                                             <td class="py-4 px-6">
-                                                <div class="font-medium">{{ $booking->guest_name ?? 'Unknown Guest' }}</div>
-                                                <div class="text-xs text-gray-500">{{ $booking->guest_email ?? '' }}</div>
+                                                <div class="font-medium">{{ $booking['guest_name'] ?? 'Unknown Guest' }}</div>
+                                                <div class="text-xs text-gray-500">{{ $booking['guest_email'] ?? '' }}</div>
                                             </td>
                                             <td class="py-4 px-6">
-                                                {{ $booking->formatted_date ?? $booking->date->format('d M Y') }}
+                                                {{ $booking['formatted_date'] }}
                                             </td>
                                             <td class="py-4 px-6">
                                                 <div class="text-xs">
-                                                    <p><span class="font-semibold">Start:</span> {{ $booking->formatted_start_time }}</p>
-                                                    <p><span class="font-semibold">End:</span> {{ $booking->formatted_end_time }}</p>
+                                                    <p><span class="font-semibold">Start:</span> {{ $booking['formatted_start_time'] }}</p>
+                                                    <p><span class="font-semibold">End:</span> {{ $booking['formatted_end_time'] }}</p>
                                                 </div>
                                             </td>
                                             <td class="py-4 px-6">
-                                                <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $booking->status_badge['class'] }}">
-                                                    {{ $booking->status_badge['text'] }}
+                                                <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $booking['status_badge']['class'] }}">
+                                                    {{ $booking['status_badge']['text'] }}
                                                 </span>
                                             </td>
                                             <td class="py-4 px-6">
                                                 <div class="flex space-x-2">
                                                     <!-- View Details Button -->
-                                                    <a href="{{ route('bookings.show', $booking->id) }}" class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-1 px-3 rounded text-xs">
+                                                    <a href="{{ route('bookings.show', $booking['id']) }}" class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-1 px-3 rounded text-xs">
                                                         Details
                                                     </a>
 
-                                                    @if(!$booking->is_confirmed)
+                                                    @if(!$booking['is_confirmed'])
                                                         <!-- Confirm Button -->
-                                                        <form action="{{ route('bookings.approve', $booking) }}" method="POST" class="inline">
+                                                        <form action="{{ route('bookings.approve', $booking['id']) }}" method="POST" class="inline">
                                                             @csrf
                                                             @method('PUT')
                                                             <button type="submit"
@@ -153,7 +176,7 @@
                                                         </form>
 
                                                         <!-- Cancel Button -->
-                                                        <form action="{{ route('bookings.reject', $booking) }}" method="POST" class="inline">
+                                                        <form action="{{ route('bookings.reject', $booking['id']) }}" method="POST" class="inline">
                                                             @csrf
                                                             @method('PUT')
                                                             <button type="submit"

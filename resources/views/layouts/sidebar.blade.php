@@ -88,6 +88,20 @@
                 </a>
             </li>
 
+            <!-- Admin Info -->
+
+            @if(Session::has('fastapi_user'))
+    <div class="user-info px-4 py-2">
+        <p class="font-medium text-gray-800 dark:text-white">{{ Session::get('fastapi_user.username') }}</p>
+        <p class="text-xs text-gray-500">{{ Session::get('fastapi_user.email') }}</p>
+        <div class="mt-2">
+            <span class="inline-flex items-center px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
+                Admin
+            </span>
+        </div>
+    </div>
+@endif
+
             <!-- Logout -->
             <li>
                 <a href="{{ route('logout') }}"

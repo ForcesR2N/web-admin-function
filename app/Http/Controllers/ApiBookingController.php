@@ -17,6 +17,59 @@ class ApiBookingController extends Controller
     }
 
     /**
+     * Display a listing of rooms from FastAPI.
+     */
+    public function indexroom()
+    {
+        try {
+            // Fetch all rooms from FastAPI
+            $response = Http::get("{$this->fastApiUrl}/room");
+
+            if (!$response->successful()) {
+                return view('rooms.index', [
+                    'rooms' => [],
+                    'error' => 'Failed to fetch rooms from FastAPI: ' . $response->status()
+                ]);
+            }
+
+            $rooms = $response->json();
+
+            return view('rooms.index', ['rooms' => $rooms]);
+        } catch (\Exception $e) {
+            Log::error('Error loading rooms from FastAPI: ' . $e->getMessage());
+
+            return view('rooms.index', [
+                'rooms' => [],
+                'error' => 'Failed to load rooms: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Display a specific room from FastAPI.
+     */
+    public function show($id)
+    {
+        try {
+            // Fetch room details from FastAPI
+            $response = Http::get("{$this->fastApiUrl}/room/{$id}");
+
+            if (!$response->successful()) {
+                return redirect()->route('rooms.index')
+                    ->with('error', 'Failed to fetch room details: ' . $response->status());
+            }
+
+            $room = $response->json();
+
+            return view('rooms.show', ['room' => $room]);
+        } catch (\Exception $e) {
+            Log::error('Error loading room details: ' . $e->getMessage());
+            return redirect()->route('rooms.index')
+                ->with('error', 'Failed to load room details: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Display a listing of bookings from FastAPI.
      */
     public function index()
@@ -93,7 +146,7 @@ class ApiBookingController extends Controller
     /**
      * Display the specified booking details.
      */
-    public function show($id)
+    public function showBooking($id)
     {
         try {
             // Fetch booking details from FastAPI
