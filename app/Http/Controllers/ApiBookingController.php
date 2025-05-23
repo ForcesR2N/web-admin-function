@@ -1,223 +1,89 @@
 <?php
-// app/Http/Controllers/ApiBookingController.php
-// SOLUSI: Laravel sebagai proxy ke backend FastAPI
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use App\Models\Booking;
+use Carbon\Carbon;
 
 class ApiBookingController extends Controller
 {
-    private string $backendUrl;
+    private string $fastApiUrl;
 
     public function __construct()
     {
-        // Backend FastAPI URL
-        $this->backendUrl = env('BACKEND_API_URL', 'http://127.0.0.1:8001/api');
+        // FastAPI backend URL
+        $this->fastApiUrl = env('FASTAPI_URL', 'http://127.0.0.1:8001/api');
     }
 
     /**
-     * PROXY: Create booking via backend FastAPI
-     * Mobile App -> Laravel -> FastAPI Backend
-     */
-    public function apiCreate(Request $request)
-    {
-        try {
-            Log::info('Mobile booking request received', $request->all());
-
-            // Validate input dari mobile app
-            $validated = $request->validate([
-                'venue_id' => 'required|integer',
-                'user_id' => 'nullable|integer',
-                'venue_name' => 'required|string',
-                'user_name' => 'required|string',
-                'user_email' => 'required|email',
-                'user_phone' => 'nullable|string',
-                'start_date' => 'required|string', // ISO datetime string
-                'end_date' => 'required|string',   // ISO datetime string
-                'capacity' => 'required|integer',
-                'special_requests' => 'nullable|string',
-                'total_price' => 'nullable|numeric',
-            ]);
-
-            // Transform data untuk backend FastAPI format
-            $backendData = $this->transformToBackendFormat($validated);
-
-            // Create dummy user jika diperlukan (untuk testing)
-            $userId = $validated['user_id'] ?? $this->getOrCreateDummyUser();
-
-            // Send request ke backend FastAPI
-            $response = Http::timeout(30)
-                ->withHeaders([
-                    'Content-Type' => 'application/json',
-                    'Accept' => 'application/json',
-                ])
-                ->post("{$this->backendUrl}/booking", $backendData);
-
-            Log::info('Backend response', [
-                'status' => $response->status(),
-                'body' => $response->body()
-            ]);
-
-            if ($response->successful()) {
-                $backendBooking = $response->json();
-
-                // Optional: Simpan juga di Laravel database untuk tracking
-                $localBooking = $this->saveLocalBooking($backendBooking, $validated);
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Booking created successfully',
-                    'booking' => $backendBooking,
-                    'local_id' => $localBooking->id ?? null
-                ], 201);
-            }
-
-            // Handle backend errors
-            $errorData = $response->json();
-            Log::error('Backend booking failed', [
-                'status' => $response->status(),
-                'error' => $errorData
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Backend booking failed',
-                'error' => $errorData['detail'] ?? 'Unknown error'
-            ], $response->status());
-
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed',
-                'errors' => $e->errors()
-            ], 422);
-
-        } catch (\Exception $e) {
-            Log::error('Mobile booking error', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Internal server error',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    /**
-     * Transform mobile app data ke format backend FastAPI
-     */
-    private function transformToBackendFormat(array $mobileData): array
-    {
-        // Parse datetime strings
-        $startDate = new \DateTime($mobileData['start_date']);
-        $endDate = new \DateTime($mobileData['end_date']);
-
-        return [
-            'place_id' => $mobileData['venue_id'],
-            'user_id' => $mobileData['user_id'] ?? 1, // Default user untuk testing
-            'start_time' => $startDate->format('H:i:s'),
-            'end_time' => $endDate->format('H:i:s'),
-            'date' => $startDate->format('Y-m-d'),
-            'is_confirmed' => false,
-        ];
-    }
-
-    /**
-     * Get or create dummy user untuk testing
-     */
-    private function getOrCreateDummyUser(): int
-    {
-        // Return default user ID
-        return 1;
-    }
-
-    /**
-     * Save booking di Laravel database untuk tracking (optional)
-     */
-    private function saveLocalBooking(array $backendBooking, array $mobileData): ?Booking
-    {
-        try {
-            return Booking::create([
-                'place_id' => $backendBooking['place_id'],
-                'user_id' => $backendBooking['user_id'],
-                'start_time' => $backendBooking['start_time'],
-                'end_time' => $backendBooking['end_time'],
-                'date' => $backendBooking['date'],
-                'is_confirmed' => $backendBooking['is_confirmed'],
-                // Tambahan data dari mobile
-                'mobile_data' => json_encode([
-                    'venue_name' => $mobileData['venue_name'],
-                    'user_name' => $mobileData['user_name'],
-                    'user_email' => $mobileData['user_email'],
-                    'capacity' => $mobileData['capacity'],
-                    'special_requests' => $mobileData['special_requests'] ?? null,
-                ])
-            ]);
-        } catch (\Exception $e) {
-            Log::warning('Failed to save local booking', ['error' => $e->getMessage()]);
-            return null;
-        }
-    }
-
-    /**
-     * PROXY: Get booking status from backend
-     */
-    public function apiCheckStatus($id)
-    {
-        try {
-            $response = Http::timeout(10)
-                ->get("{$this->backendUrl}/booking/{$id}");
-
-            if ($response->successful()) {
-                return response()->json($response->json());
-            }
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Booking not found'
-            ], 404);
-
-        } catch (\Exception $e) {
-            Log::error('Status check error', ['error' => $e->getMessage()]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to check status'
-            ], 500);
-        }
-    }
-
-    /**
-     * List all bookings (untuk admin)
+     * Display a listing of bookings from FastAPI.
      */
     public function index()
     {
         try {
-            // Get bookings dari Laravel database
-            $bookings = Booking::with(['place', 'user'])
-                ->orderBy('created_at', 'desc')
-                ->get();
+            // Fetch all bookings from FastAPI
+            $response = Http::get("{$this->fastApiUrl}/booking");
 
+            if (!$response->successful()) {
+                return view('bookings.index', [
+                    'bookings' => [],
+                    'stats' => ['total' => 0, 'pending' => 0, 'confirmed' => 0],
+                    'error' => 'Failed to fetch bookings from FastAPI: ' . $response->status()
+                ]);
+            }
+
+            $bookings = $response->json();
+
+            // Format bookings for display
+            $formattedBookings = [];
+            foreach ($bookings as $booking) {
+                // Get place info for each booking
+                $placeResponse = Http::get("{$this->fastApiUrl}/place/{$booking['place_id']}");
+                $place = $placeResponse->successful() ? $placeResponse->json() : null;
+
+                // Get user info for each booking
+                $userResponse = Http::get("{$this->fastApiUrl}/user/{$booking['user_id']}");
+                $user = $userResponse->successful() ? $userResponse->json() : null;
+
+                $formattedBookings[] = [
+                    'id' => $booking['id'],
+                    'place_id' => $booking['place_id'],
+                    'user_id' => $booking['user_id'],
+                    'start_time' => $booking['start_time'],
+                    'end_time' => $booking['end_time'],
+                    'date' => Carbon::parse($booking['date']),
+                    'is_confirmed' => $booking['is_confirmed'] ?? false,
+                    'formatted_start_time' => substr($booking['start_time'], 0, 5),
+                    'formatted_end_time' => substr($booking['end_time'], 0, 5),
+                    'formatted_date' => Carbon::parse($booking['date'])->format('d M Y'),
+                    'status_badge' => $booking['is_confirmed']
+                        ? ['class' => 'bg-green-100 text-green-800', 'text' => 'Confirmed']
+                        : ['class' => 'bg-yellow-100 text-yellow-800', 'text' => 'Pending'],
+                    'place' => $place,
+                    'user' => $user,
+                    // Parse additional info from user/place
+                    'guest_name' => $user['username'] ?? 'Unknown',
+                    'guest_email' => $user['email'] ?? null,
+                ];
+            }
+
+            // Calculate stats
             $stats = [
-                'total' => $bookings->count(),
-                'pending' => $bookings->where('is_confirmed', false)->count(),
-                'confirmed' => $bookings->where('is_confirmed', true)->count(),
+                'total' => count($formattedBookings),
+                'pending' => count(array_filter($formattedBookings, fn($b) => !$b['is_confirmed'])),
+                'confirmed' => count(array_filter($formattedBookings, fn($b) => $b['is_confirmed'])),
             ];
 
-            return view('bookings.index', compact('bookings', 'stats'));
-
+            return view('bookings.index', [
+                'bookings' => $formattedBookings,
+                'stats' => $stats
+            ]);
         } catch (\Exception $e) {
-            Log::error('Bookings index error', ['error' => $e->getMessage()]);
+            Log::error('Error loading bookings from FastAPI: ' . $e->getMessage());
 
             return view('bookings.index', [
-                'bookings' => collect([]),
+                'bookings' => [],
                 'stats' => ['total' => 0, 'pending' => 0, 'confirmed' => 0],
                 'error' => 'Failed to load bookings: ' . $e->getMessage()
             ]);
@@ -225,71 +91,124 @@ class ApiBookingController extends Controller
     }
 
     /**
-     * Approve booking
+     * Display the specified booking details.
+     */
+    public function show($id)
+    {
+        try {
+            // Fetch booking details from FastAPI
+            $response = Http::get("{$this->fastApiUrl}/booking/{$id}");
+
+            if (!$response->successful()) {
+                return redirect()->route('bookings.index')
+                    ->with('error', 'Failed to fetch booking details: ' . $response->status());
+            }
+
+            $booking = $response->json();
+
+            // Get place info
+            $placeResponse = Http::get("{$this->fastApiUrl}/place/{$booking['place_id']}");
+            $place = $placeResponse->successful() ? $placeResponse->json() : null;
+
+            // Get user info
+            $userResponse = Http::get("{$this->fastApiUrl}/user/{$booking['user_id']}");
+            $user = $userResponse->successful() ? $userResponse->json() : null;
+
+            // Format booking for view
+            $formattedBooking = [
+                'id' => $booking['id'],
+                'place_id' => $booking['place_id'],
+                'user_id' => $booking['user_id'],
+                'start_time' => $booking['start_time'],
+                'end_time' => $booking['end_time'],
+                'date' => Carbon::parse($booking['date']),
+                'is_confirmed' => $booking['is_confirmed'] ?? false,
+                'created_at' => isset($booking['created_at']) ? Carbon::parse($booking['created_at']) : now(),
+                'formatted_start_time' => substr($booking['start_time'], 0, 5),
+                'formatted_end_time' => substr($booking['end_time'], 0, 5),
+                'formatted_date' => Carbon::parse($booking['date'])->format('d M Y'),
+                'status_badge' => $booking['is_confirmed']
+                    ? ['class' => 'bg-green-100 text-green-800', 'text' => 'Confirmed']
+                    : ['class' => 'bg-yellow-100 text-yellow-800', 'text' => 'Pending'],
+                'place' => $place,
+                'user' => $user,
+                // Parse additional info
+                'guest_name' => $user['username'] ?? 'Unknown',
+                'guest_email' => $user['email'] ?? null,
+                'capacity' => isset($place['max_capacity']) ? $place['max_capacity'] : 'Unknown',
+                'notes' => null, // FastAPI doesn't store notes
+            ];
+
+            return view('bookings.show', ['booking' => $formattedBooking]);
+
+        } catch (\Exception $e) {
+            Log::error('Error loading booking details: ' . $e->getMessage());
+            return redirect()->route('bookings.index')
+                ->with('error', 'Failed to load booking details: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Approve a booking by sending request to FastAPI.
      */
     public function approve($id)
     {
         try {
-            $booking = Booking::findOrFail($id);
-            $booking->update(['is_confirmed' => true]);
+            // Call FastAPI to confirm booking
+            $response = Http::patch("{$this->fastApiUrl}/booking/host/confirm/{$id}", [
+                'booking_id' => $id,
+                'user_id' => 1  // Admin user ID
+            ]);
 
-            // Optional: Sync dengan backend FastAPI
-            $this->syncWithBackend($booking);
+            if (!$response->successful()) {
+                Log::error('Failed to confirm booking in FastAPI', [
+                    'booking_id' => $id,
+                    'response' => $response->body()
+                ]);
+
+                return redirect()->route('bookings.index')
+                    ->with('error', 'Failed to confirm booking: ' . ($response->json()['detail'] ?? 'Unknown error'));
+            }
 
             return redirect()->route('bookings.index')
-                ->with('success', "Booking #{$booking->id} confirmed successfully!");
+                ->with('success', "Booking #{$id} confirmed successfully!");
 
         } catch (\Exception $e) {
             Log::error('Booking approval error', ['error' => $e->getMessage()]);
-            return redirect()->back()->with('error', 'Failed to confirm booking');
+            return redirect()->back()
+                ->with('error', 'Failed to confirm booking: ' . $e->getMessage());
         }
     }
 
     /**
-     * Reject booking
+     * Reject/cancel a booking by sending request to FastAPI.
      */
     public function reject($id)
     {
         try {
-            $booking = Booking::findOrFail($id);
+            // Call FastAPI to cancel booking
+            $response = Http::patch("{$this->fastApiUrl}/booking/host/cancel/{$id}", [
+                'booking_id' => $id,
+                'user_id' => 1  // Admin user ID
+            ]);
 
-            // Optional: Notify backend sebelum delete
-            $this->notifyBackendDeletion($booking);
+            if (!$response->successful()) {
+                Log::error('Failed to cancel booking in FastAPI', [
+                    'booking_id' => $id,
+                    'response' => $response->body()
+                ]);
 
-            $booking->delete();
+                return redirect()->route('bookings.index')
+                    ->with('error', 'Failed to cancel booking: ' . ($response->json()['detail'] ?? 'Unknown error'));
+            }
 
             return redirect()->route('bookings.index')
-                ->with('success', "Booking #{$booking->id} cancelled successfully!");
+                ->with('success', "Booking #{$id} cancelled successfully!");
 
         } catch (\Exception $e) {
             Log::error('Booking rejection error', ['error' => $e->getMessage()]);
-            return redirect()->back()->with('error', 'Failed to cancel booking');
-        }
-    }
-
-    /**
-     * Sync Laravel booking dengan backend (optional)
-     */
-    private function syncWithBackend(Booking $booking): void
-    {
-        try {
-            // Implementasi sync jika diperlukan
-            // Http::patch("{$this->backendUrl}/booking/{$booking->id}", [...]);
-        } catch (\Exception $e) {
-            Log::warning('Backend sync failed', ['error' => $e->getMessage()]);
-        }
-    }
-
-    /**
-     * Notify backend tentang deletion (optional)
-     */
-    private function notifyBackendDeletion(Booking $booking): void
-    {
-        try {
-            // Implementasi notification jika diperlukan
-            // Http::delete("{$this->backendUrl}/booking/{$booking->id}");
-        } catch (\Exception $e) {
-            Log::warning('Backend delete notification failed', ['error' => $e->getMessage()]);
+            return redirect()->back()
+                ->with('error', 'Failed to cancel booking: ' . $e->getMessage());
         }
     }
 }

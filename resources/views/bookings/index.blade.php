@@ -1,5 +1,4 @@
 {{-- resources/views/bookings/index.blade.php --}}
-{{-- View untuk Mobile App Booking Requests --}}
 
 <x-app-layout>
     <x-slot name="header">
@@ -99,7 +98,7 @@
                                     <tr>
                                         <th scope="col" class="py-3 px-6">ID</th>
                                         <th scope="col" class="py-3 px-6">Place</th>
-                                        <th scope="col" class="py-3 px-6">User</th>
+                                        <th scope="col" class="py-3 px-6">Guest</th>
                                         <th scope="col" class="py-3 px-6">Date</th>
                                         <th scope="col" class="py-3 px-6">Time</th>
                                         <th scope="col" class="py-3 px-6">Status</th>
@@ -112,37 +111,36 @@
                                             <td class="py-4 px-6 font-medium">#{{ $booking->id }}</td>
                                             <td class="py-4 px-6">
                                                 <div class="font-medium text-gray-900 dark:text-white">
-                                                    {{ $booking->place->name ?? 'Place #' . $booking->place_id }}
+                                                    {{ $booking->place->name ?? 'Unknown Venue' }}
                                                 </div>
                                                 <div class="text-xs text-gray-500">ID: {{ $booking->place_id }}</div>
                                             </td>
                                             <td class="py-4 px-6">
-                                                <div class="font-medium">{{ $booking->user->name ?? 'User #' . $booking->user_id }}</div>
-                                                <div class="text-xs text-gray-500">ID: {{ $booking->user_id }}</div>
+                                                <div class="font-medium">{{ $booking->guest_name ?? 'Unknown Guest' }}</div>
+                                                <div class="text-xs text-gray-500">{{ $booking->guest_email ?? '' }}</div>
                                             </td>
                                             <td class="py-4 px-6">
-                                                {{ $booking->date ? $booking->date->format('d M Y') : 'N/A' }}
+                                                {{ $booking->formatted_date ?? $booking->date->format('d M Y') }}
                                             </td>
                                             <td class="py-4 px-6">
                                                 <div class="text-xs">
-                                                    <p><span class="font-semibold">Start:</span> {{ $booking->formatted_start_time ?? $booking->start_time }}</p>
-                                                    <p><span class="font-semibold">End:</span> {{ $booking->formatted_end_time ?? $booking->end_time }}</p>
+                                                    <p><span class="font-semibold">Start:</span> {{ $booking->formatted_start_time }}</p>
+                                                    <p><span class="font-semibold">End:</span> {{ $booking->formatted_end_time }}</p>
                                                 </div>
                                             </td>
                                             <td class="py-4 px-6">
-                                                @if(isset($booking->status_badge))
-                                                    <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $booking->status_badge['class'] }}">
-                                                        {{ $booking->status_badge['text'] }}
-                                                    </span>
-                                                @else
-                                                    <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $booking->is_confirmed ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
-                                                        {{ $booking->is_confirmed ? 'Confirmed' : 'Pending' }}
-                                                    </span>
-                                                @endif
+                                                <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $booking->status_badge['class'] }}">
+                                                    {{ $booking->status_badge['text'] }}
+                                                </span>
                                             </td>
                                             <td class="py-4 px-6">
-                                                @if(!$booking->is_confirmed)
-                                                    <div class="flex space-x-2">
+                                                <div class="flex space-x-2">
+                                                    <!-- View Details Button -->
+                                                    <a href="{{ route('bookings.show', $booking->id) }}" class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-1 px-3 rounded text-xs">
+                                                        Details
+                                                    </a>
+
+                                                    @if(!$booking->is_confirmed)
                                                         <!-- Confirm Button -->
                                                         <form action="{{ route('bookings.approve', $booking) }}" method="POST" class="inline">
                                                             @csrf
@@ -164,13 +162,8 @@
                                                                 ✗ Cancel
                                                             </button>
                                                         </form>
-                                                    </div>
-                                                @else
-                                                    <div class="text-xs text-gray-500">
-                                                        <p class="font-medium">Confirmed</p>
-                                                        <p>{{ $booking->updated_at ? $booking->updated_at->format('d M Y, H:i') : 'N/A' }}</p>
-                                                    </div>
-                                                @endif
+                                                    @endif
+                                                </div>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -184,16 +177,6 @@
                             </svg>
                             <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No booking requests found</h3>
                             <p class="text-gray-500 dark:text-gray-400">Mobile app booking requests will appear here.</p>
-
-                            <!-- Debug info -->
-                            <div class="mt-4 p-4 bg-gray-100 dark:bg-gray-700 rounded-lg text-left">
-                                <h4 class="font-medium mb-2">Debug Information:</h4>
-                                <p class="text-sm">Bookings variable: {{ isset($bookings) ? 'Set' : 'Not set' }}</p>
-                                @if(isset($bookings))
-                                    <p class="text-sm">Bookings count: {{ $bookings->count() }}</p>
-                                    <p class="text-sm">Bookings type: {{ get_class($bookings) }}</p>
-                                @endif
-                            </div>
                         </div>
                     @endif
                 </div>

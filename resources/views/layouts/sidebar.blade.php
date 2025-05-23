@@ -37,33 +37,33 @@
 
             <!-- Mobile App Booking Requests -->
             <li>
-                <a href="{{ route('bookings.index') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group {{ request()->routeIs('bookings.*') ? 'bg-gray-100 dark:bg-gray-700' : '' }}">
-                    <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M7 2.75C7 1.784 7.784 1 8.75 1h6.5c.966 0 1.75.784 1.75 1.75V4h3.25c.414 0 .75.336.75.75s-.336.75-.75.75H18v13.75c0 1.243-1.007 2.25-2.25 2.25h-7.5C7.007 21.25 6 20.243 6 19V5.5H3.25c-.414 0-.75-.336-.75-.75S2.836 4 3.25 4H6.5V2.75zM8.5 2.5v1.25h7V2.5h-7zM7.5 5.5V19c0 .414.336.75.75.75h7.5c.414 0 .75-.336.75-.75V5.5h-9z"/>
-                        <path d="M12 7c.414 0 .75.336.75.75v4.5c0 .414-.336.75-.75.75s-.75-.336-.75-.75v-4.5c0-.414.336-.75.75-.75z"/>
-                        <path d="M9.5 10c.414 0 .75.336.75.75v1.5c0 .414-.336.75-.75.75s-.75-.336-.75-.75v-1.5c0-.414.336-.75.75-.75z"/>
-                        <path d="M14.5 10c.414 0 .75.336.75.75v1.5c0 .414-.336.75-.75.75s-.75-.336-.75-.75v-1.5c0-.414.336-.75.75-.75z"/>
-                    </svg>
-                    <span class="flex-1 ms-3 whitespace-nowrap">Mobile Booking Requests</span>
-                    @php
-                        $pendingCount = 0;
-                        try {
-                            // Try to get pending bookings count safely
-                            if (Schema::hasTable('booking')) {
-                                $pendingCount = App\Models\Booking::where('is_confirmed', false)->count();
-                            }
-                        } catch (\Exception $e) {
-                            // If table doesn't exist yet, show 0
-                            $pendingCount = 0;
-                        }
-                    @endphp
-                    @if($pendingCount > 0)
-                        <span class="inline-flex items-center justify-center w-3 h-3 p-3 ms-3 text-xs font-medium text-blue-800 bg-blue-100 rounded-full dark:bg-blue-900 dark:text-blue-300">
-                            {{ $pendingCount }}
-                        </span>
-                    @endif
-                </a>
-            </li>
+    <a href="{{ route('bookings.index') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group {{ request()->routeIs('bookings.*') ? 'bg-gray-100 dark:bg-gray-700' : '' }}">
+        <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M7 2.75C7 1.784 7.784 1 8.75 1h6.5c.966 0 1.75.784 1.75 1.75V4h3.25c.414 0 .75.336.75.75s-.336.75-.75.75H18v13.75c0 1.243-1.007 2.25-2.25 2.25h-7.5C7.007 21.25 6 20.243 6 19V5.5H3.25c-.414 0-.75-.336-.75-.75S2.836 4 3.25 4H6.5V2.75zM8.5 2.5v1.25h7V2.5h-7zM7.5 5.5V19c0 .414.336.75.75.75h7.5c.414 0 .75-.336.75-.75V5.5h-9z"/>
+            <path d="M12 7c.414 0 .75.336.75.75v4.5c0 .414-.336.75-.75.75s-.75-.336-.75-.75v-4.5c0-.414.336-.75.75-.75z"/>
+            <path d="M9.5 10c.414 0 .75.336.75.75v1.5c0 .414-.336.75-.75.75s-.75-.336-.75-.75v-1.5c0-.414.336-.75.75-.75z"/>
+            <path d="M14.5 10c.414 0 .75.336.75.75v1.5c0 .414-.336.75-.75.75s-.75-.336-.75-.75v-1.5c0-.414.336-.75.75-.75z"/>
+        </svg>
+        <span class="flex-1 ms-3 whitespace-nowrap">Mobile Booking Requests</span>
+        @php
+            $pendingCount = 0;
+            try {
+                // Try to get pending bookings count safely
+                if (Schema::hasTable('booking')) {
+                    $pendingCount = App\Models\Booking::where('is_confirmed', false)->count();
+                }
+            } catch (\Exception $e) {
+                // If table doesn't exist yet, show 0
+                $pendingCount = 0;
+            }
+        @endphp
+        @if($pendingCount > 0)
+            <span class="inline-flex items-center justify-center w-3 h-3 p-3 ms-3 text-xs font-medium text-blue-800 bg-blue-100 rounded-full dark:bg-blue-900 dark:text-blue-300">
+                {{ $pendingCount }}
+            </span>
+        @endif
+    </a>
+</li>
 
             <!-- Rooms -->
             <li>

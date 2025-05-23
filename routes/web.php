@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ApiBookingController;
 
 Route::get('/', function () {
@@ -18,20 +17,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Regular room booking routes (existing system)
-    Route::prefix('booking')->name('booking.')->group(function() {
-        Route::get('/', [BookingController::class, 'index'])->name('index');
-        Route::get('/create', [BookingController::class, 'create'])->name('create');
-        Route::post('/', [BookingController::class, 'store'])->name('store');
-        Route::get('/{booking}/edit', [BookingController::class, 'edit'])->name('edit');
-        Route::put('/{booking}', [BookingController::class, 'update'])->name('update');
-        Route::delete('/{booking}', [BookingController::class, 'destroy'])->name('destroy');
-    });
+    Route::get('/rooms', [ApiBookingController::class, 'indexroom'])->name('rooms.index');
+    Route::get('/rooms/{room}', [ApiBookingController::class, 'show'])->name('rooms.show');
 
-    Route::get('/rooms', [BookingController::class, 'indexroom'])->name('rooms.index');
-    Route::get('/rooms/{room}', [BookingController::class, 'show'])->name('rooms.show');
-
-    // API Booking management routes (mobile app bookings)
+    // Mobile App Booking Management
     Route::prefix('bookings')->name('bookings.')->group(function () {
         Route::get('/', [ApiBookingController::class, 'index'])->name('index');
         Route::get('/{booking}', [ApiBookingController::class, 'show'])->name('show');

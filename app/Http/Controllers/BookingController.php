@@ -123,11 +123,7 @@ class BookingController extends Controller
         return redirect()->route('bookings.index')->with('success', 'Jadwal Berhasil Dihapus');
     }
 
-    public function indexroom()
-    {
-        $rooms = Room::all();
-        return view('rooms.index', compact('rooms'));
-    }
+ 
 
     public function show(Room $room)
     {
