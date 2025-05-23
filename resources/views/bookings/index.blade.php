@@ -184,15 +184,15 @@
                                                         </form>
 
                                                         <!-- Cancel Button -->
-                                                        <form action="{{ route('bookings.reject', $booking['id']) }}" method="POST" class="inline">
-                                                            @csrf
-                                                            @method('PUT')
-                                                            <button type="submit"
-                                                                    class="bg-red-500 hover:bg-red-600 text-white font-medium py-1 px-3 rounded text-xs"
-                                                                    onclick="return confirm('Are you sure you want to cancel this booking?')">
-                                                                ✗ Cancel
-                                                            </button>
-                                                        </form>
+                                                       <form action="{{ route('bookings.reject', $booking['id']) }}" method="POST">
+    @csrf
+    @method('DELETE')  <!-- Ubah ke DELETE method -->
+    <button type="submit"
+            class="bg-red-500 hover:bg-red-600 text-white font-medium py-1 px-3 rounded text-xs"
+            onclick="return confirm('Are you sure you want to delete this booking?')">
+        ✗ Cancel
+    </button>
+</form>
                                                     @endif
                                                 </div>
                                             </td>

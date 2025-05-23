@@ -328,14 +328,19 @@ class ApiBookingController extends Controller
     }
 
     try {
-        // Get current user ID from session
-        $userData = Session::get('fastapi_user');
-        $userId = $userData['id'] ?? 1; // Default to 1 if not found
-
-        // Call FastAPI to cancel booking
-        $response = $this->apiRequest('PATCH', "/booking/host/cancel/{$id}", [
+        // Log untuk debugging
+        Log::info('Cancel booking directly', [
             'booking_id' => $id,
-            'user_id' => $userId
+            'endpoint' => "/booking/{$id}"
+        ]);
+
+        // Panggil FastAPI untuk DELETE booking langsung
+        $response = $this->apiRequest('DELETE', "/booking/{$id}");
+
+        // Log respons lengkap
+        Log::info('Cancel booking response', [
+            'status' => $response->status(),
+            'body' => $response->body()
         ]);
 
         if (!$response->successful()) {
@@ -348,12 +353,12 @@ class ApiBookingController extends Controller
                 ->with('error', 'Failed to cancel booking: ' . ($response->json()['detail'] ?? 'Unknown error'));
         }
 
-        // Tambahkan parameter untuk force refresh
+        // Force refresh dengan timestamp
         return redirect()->route('bookings.index', ['refresh' => time()])
-            ->with('success', "Booking #{$id} cancelled successfully!");
+            ->with('success', "Booking #{$id} has been cancelled successfully!");
 
     } catch (\Exception $e) {
-        Log::error('Booking rejection error', ['error' => $e->getMessage()]);
+        Log::error('Booking cancel error', ['error' => $e->getMessage()]);
         return redirect()->back()
             ->with('error', 'Failed to cancel booking: ' . $e->getMessage());
     }

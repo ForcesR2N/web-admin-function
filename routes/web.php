@@ -44,5 +44,5 @@ Route::prefix('bookings')->name('bookings.')->controller(ApiBookingController::c
     Route::get('/', 'index')->name('index');
     Route::get('/{booking}', 'showBooking')->name('show');
     Route::put('/{booking}/approve', 'approve')->name('approve');
-    Route::put('/{booking}/reject', 'reject')->name('reject');
+    Route::delete('/{booking}/reject', 'reject')->name('reject');
 });
