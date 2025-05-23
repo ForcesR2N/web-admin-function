@@ -13,7 +13,7 @@ class BookingController extends Controller
     public function index()
     {
         $currentDateTime = Carbon::now();
-    
+
         // Filter bookings to include only future events
         $bookings = Event::where(function ($query) use ($currentDateTime) {
             $query->where('date', '>', $currentDateTime->toDateString())
@@ -22,10 +22,10 @@ class BookingController extends Controller
                             ->where('finish', '>', $currentDateTime->toTimeString());
                   });
         })->get()->groupBy('nama_rooms');
-    
-        return view('booking.index', compact('bookings'));
+
+        return view('bookings.index', compact('bookings'));
     }
-    
+
 
     public function create()
     {
@@ -106,21 +106,21 @@ class BookingController extends Controller
             'date.required' => 'Kolom tanggal wajib diisi.',
             'date.date' => 'Format kolom tanggal tidak valid.',
         ]);
-    
+
         if (!Event::isRoomAvailable($request->id_rooms, $request->start, $request->finish, $request->date, $booking->id)) {
             return back()->withErrors(['msg' => 'Ruangan tidak tersedia di jadwal yang ditentukan']);
         }
-    
+
         $booking->update($request->all());
-    
-        return redirect()->route('booking.index')->with('success', 'Jadwal Berhasil Diperbarui');
+
+        return redirect()->route('bookings.index')->with('success', 'Jadwal Berhasil Diperbarui');
     }
-    
+
 
     public function destroy(Event $booking)
     {
         $booking->delete();
-        return redirect()->route('booking.index')->with('success', 'Jadwal Berhasil Dihapus');
+        return redirect()->route('bookings.index')->with('success', 'Jadwal Berhasil Dihapus');
     }
 
     public function indexroom()
