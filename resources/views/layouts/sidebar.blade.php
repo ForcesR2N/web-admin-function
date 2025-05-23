@@ -104,18 +104,18 @@
 
             <!-- Logout -->
             <li>
-                <a href="{{ route('logout') }}"
-                   class="flex items-center p-2 text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group"
-                   onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                    <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12H4m12 0-4 4m4-4-4-4m3-4h2a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3h-2"/>
-                    </svg>
-                    <span class="ms-3">Log-out</span>
-                </a>
-                <form id="logout-form" method="POST" action="{{ route('logout') }}" style="display: none;">
-                    @csrf
-                </form>
-            </li>
+    <a href="#"
+       class="flex items-center p-2 text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group"
+       onclick="event.preventDefault(); document.getElementById('api-logout-form').submit();">
+        <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12H4m12 0-4 4m4-4-4-4m3-4h2a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3h-2"/>
+        </svg>
+        <span class="ms-3">Log-out</span>
+    </a>
+    <form id="api-logout-form" method="POST" action="{{ route('api.logout') }}" style="display: none;">
+        @csrf
+    </form>
+</li>
         </ul>
     </div>
 </aside>

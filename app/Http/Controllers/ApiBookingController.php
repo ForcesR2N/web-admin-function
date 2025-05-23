@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 use Carbon\Carbon;
+use App\Http\Controllers\ApiAuthController;
 
 class ApiBookingController extends Controller
 {
@@ -16,14 +18,53 @@ class ApiBookingController extends Controller
         $this->fastApiUrl = env('FASTAPI_URL', 'http://127.0.0.1:8001/api');
     }
 
+    // Helper method untuk pemeriksaan autentikasi
+    private function checkAuth()
+    {
+        if (!ApiAuthController::isAuthenticated()) {
+            return redirect('/api/login')->withErrors([
+                'email' => 'Please login to access this page',
+            ]);
+        }
+        return null;
+    }
+
+    // Helper method for authenticated API requests
+    private function apiRequest($method, $endpoint, $data = [])
+    {
+        $token = Session::get('api_token');
+
+        $request = Http::withToken($token);
+
+        switch (strtoupper($method)) {
+            case 'GET':
+                return $request->get("{$this->fastApiUrl}{$endpoint}");
+            case 'POST':
+                return $request->post("{$this->fastApiUrl}{$endpoint}", $data);
+            case 'PUT':
+                return $request->put("{$this->fastApiUrl}{$endpoint}", $data);
+            case 'PATCH':
+                return $request->patch("{$this->fastApiUrl}{$endpoint}", $data);
+            case 'DELETE':
+                return $request->delete("{$this->fastApiUrl}{$endpoint}");
+            default:
+                throw new \Exception("Unsupported HTTP method: {$method}");
+        }
+    }
+
     /**
      * Display a listing of rooms from FastAPI.
      */
     public function indexroom()
     {
+        // Check auth first
+        if ($authRedirect = $this->checkAuth()) {
+            return $authRedirect;
+        }
+
         try {
             // Fetch all rooms from FastAPI
-            $response = Http::get("{$this->fastApiUrl}/room");
+            $response = $this->apiRequest('GET', '/room');
 
             if (!$response->successful()) {
                 return view('rooms.index', [
@@ -50,9 +91,14 @@ class ApiBookingController extends Controller
      */
     public function show($id)
     {
+        // Check auth first
+        if ($authRedirect = $this->checkAuth()) {
+            return $authRedirect;
+        }
+
         try {
             // Fetch room details from FastAPI
-            $response = Http::get("{$this->fastApiUrl}/room/{$id}");
+            $response = $this->apiRequest('GET', "/room/{$id}");
 
             if (!$response->successful()) {
                 return redirect()->route('rooms.index')
@@ -74,9 +120,15 @@ class ApiBookingController extends Controller
      */
     public function index()
     {
+        // Check auth first
+        if ($authRedirect = $this->checkAuth()) {
+            return $authRedirect;
+        }
+
         try {
             // Fetch all bookings from FastAPI
-            $response = Http::get("{$this->fastApiUrl}/booking");
+            $timestamp = time();
+            $response = $this->apiRequest('GET', "/booking?nocache={$timestamp}");
 
             if (!$response->successful()) {
                 return view('bookings.index', [
@@ -92,13 +144,10 @@ class ApiBookingController extends Controller
             $formattedBookings = [];
             foreach ($bookings as $booking) {
                 // Get place info for each booking
-                $placeResponse = Http::get("{$this->fastApiUrl}/place/{$booking['place_id']}");
+                $placeResponse = $this->apiRequest('GET', "/place/{$booking['place_id']}");
                 $place = $placeResponse->successful() ? $placeResponse->json() : null;
 
-                // Get user info for each booking
-                $userResponse = Http::get("{$this->fastApiUrl}/user/{$booking['user_id']}");
-                $user = $userResponse->successful() ? $userResponse->json() : null;
-
+                // Format booking data
                 $formattedBookings[] = [
                     'id' => $booking['id'],
                     'place_id' => $booking['place_id'],
@@ -114,11 +163,22 @@ class ApiBookingController extends Controller
                         ? ['class' => 'bg-green-100 text-green-800', 'text' => 'Confirmed']
                         : ['class' => 'bg-yellow-100 text-yellow-800', 'text' => 'Pending'],
                     'place' => $place,
-                    'user' => $user,
-                    // Parse additional info from user/place
-                    'guest_name' => $user['username'] ?? 'Unknown',
-                    'guest_email' => $user['email'] ?? null,
+                    'guest_name' => null, // To be filled if user info is available
+                    'guest_email' => null,
                 ];
+
+                // Try to get user info for this booking
+                try {
+                    $userResponse = $this->apiRequest('GET', "/user/me");
+                    if ($userResponse->successful()) {
+                        $user = $userResponse->json();
+                        $formattedBookings[count($formattedBookings) - 1]['guest_name'] = $user['username'] ?? 'Unknown';
+                        $formattedBookings[count($formattedBookings) - 1]['guest_email'] = $user['email'] ?? null;
+                    }
+                } catch (\Exception $e) {
+                    // Continue if user info can't be retrieved
+                    Log::warning("Could not fetch user info for booking {$booking['id']}: " . $e->getMessage());
+                }
             }
 
             // Calculate stats
@@ -148,9 +208,14 @@ class ApiBookingController extends Controller
      */
     public function showBooking($id)
     {
+        // Check auth first
+        if ($authRedirect = $this->checkAuth()) {
+            return $authRedirect;
+        }
+
         try {
             // Fetch booking details from FastAPI
-            $response = Http::get("{$this->fastApiUrl}/booking/{$id}");
+            $response = $this->apiRequest('GET', "/booking/{$id}");
 
             if (!$response->successful()) {
                 return redirect()->route('bookings.index')
@@ -160,12 +225,19 @@ class ApiBookingController extends Controller
             $booking = $response->json();
 
             // Get place info
-            $placeResponse = Http::get("{$this->fastApiUrl}/place/{$booking['place_id']}");
+            $placeResponse = $this->apiRequest('GET', "/place/{$booking['place_id']}");
             $place = $placeResponse->successful() ? $placeResponse->json() : null;
 
-            // Get user info
-            $userResponse = Http::get("{$this->fastApiUrl}/user/{$booking['user_id']}");
-            $user = $userResponse->successful() ? $userResponse->json() : null;
+            // Try to get user info
+            $userInfo = null;
+            try {
+                $userResponse = $this->apiRequest('GET', "/user/me");
+                if ($userResponse->successful()) {
+                    $userInfo = $userResponse->json();
+                }
+            } catch (\Exception $e) {
+                Log::warning("Could not fetch user info for booking {$id}: " . $e->getMessage());
+            }
 
             // Format booking for view
             $formattedBooking = [
@@ -184,12 +256,15 @@ class ApiBookingController extends Controller
                     ? ['class' => 'bg-green-100 text-green-800', 'text' => 'Confirmed']
                     : ['class' => 'bg-yellow-100 text-yellow-800', 'text' => 'Pending'],
                 'place' => $place,
-                'user' => $user,
+                'user' => $userInfo,
                 // Parse additional info
-                'guest_name' => $user['username'] ?? 'Unknown',
-                'guest_email' => $user['email'] ?? null,
+                'guest_name' => $userInfo['username'] ?? 'Unknown',
+                'guest_email' => $userInfo['email'] ?? null,
                 'capacity' => isset($place['max_capacity']) ? $place['max_capacity'] : 'Unknown',
                 'notes' => null, // FastAPI doesn't store notes
+                'mobile_info' => [
+                    'contact_info' => $userInfo['email'] ?? 'Not provided',
+                ],
             ];
 
             return view('bookings.show', ['booking' => $formattedBooking]);
@@ -206,11 +281,20 @@ class ApiBookingController extends Controller
      */
     public function approve($id)
     {
+        // Check auth first
+        if ($authRedirect = $this->checkAuth()) {
+            return $authRedirect;
+        }
+
         try {
+            // Get current user ID from session
+            $userData = Session::get('fastapi_user');
+            $userId = $userData['id'] ?? 1; // Default to 1 if not found
+
             // Call FastAPI to confirm booking
-            $response = Http::patch("{$this->fastApiUrl}/booking/host/confirm/{$id}", [
+            $response = $this->apiRequest('PATCH', "/booking/host/confirm/{$id}", [
                 'booking_id' => $id,
-                'user_id' => 1  // Admin user ID
+                'user_id' => $userId
             ]);
 
             if (!$response->successful()) {
@@ -237,31 +321,41 @@ class ApiBookingController extends Controller
      * Reject/cancel a booking by sending request to FastAPI.
      */
     public function reject($id)
-    {
-        try {
-            // Call FastAPI to cancel booking
-            $response = Http::patch("{$this->fastApiUrl}/booking/host/cancel/{$id}", [
+{
+    // Check auth first
+    if ($authRedirect = $this->checkAuth()) {
+        return $authRedirect;
+    }
+
+    try {
+        // Get current user ID from session
+        $userData = Session::get('fastapi_user');
+        $userId = $userData['id'] ?? 1; // Default to 1 if not found
+
+        // Call FastAPI to cancel booking
+        $response = $this->apiRequest('PATCH', "/booking/host/cancel/{$id}", [
+            'booking_id' => $id,
+            'user_id' => $userId
+        ]);
+
+        if (!$response->successful()) {
+            Log::error('Failed to cancel booking in FastAPI', [
                 'booking_id' => $id,
-                'user_id' => 1  // Admin user ID
+                'response' => $response->body()
             ]);
 
-            if (!$response->successful()) {
-                Log::error('Failed to cancel booking in FastAPI', [
-                    'booking_id' => $id,
-                    'response' => $response->body()
-                ]);
-
-                return redirect()->route('bookings.index')
-                    ->with('error', 'Failed to cancel booking: ' . ($response->json()['detail'] ?? 'Unknown error'));
-            }
-
             return redirect()->route('bookings.index')
-                ->with('success', "Booking #{$id} cancelled successfully!");
-
-        } catch (\Exception $e) {
-            Log::error('Booking rejection error', ['error' => $e->getMessage()]);
-            return redirect()->back()
-                ->with('error', 'Failed to cancel booking: ' . $e->getMessage());
+                ->with('error', 'Failed to cancel booking: ' . ($response->json()['detail'] ?? 'Unknown error'));
         }
+
+        // Tambahkan parameter untuk force refresh
+        return redirect()->route('bookings.index', ['refresh' => time()])
+            ->with('success', "Booking #{$id} cancelled successfully!");
+
+    } catch (\Exception $e) {
+        Log::error('Booking rejection error', ['error' => $e->getMessage()]);
+        return redirect()->back()
+            ->with('error', 'Failed to cancel booking: ' . $e->getMessage());
     }
+}
 }
