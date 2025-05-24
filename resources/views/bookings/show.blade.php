@@ -32,7 +32,7 @@
                     <div class="flex justify-between mb-6">
                         <div>
                             <h3 class="text-2xl font-bold text-gray-900 dark:text-white">
-                                Booking #{{ $booking->id }}
+                                Booking #{{ $booking['id'] }}
                             </h3>
                             <p class="text-gray-500 dark:text-gray-400">
                                 Created on {{ $booking->created_at->format('M d, Y \a\t h:i A') }}

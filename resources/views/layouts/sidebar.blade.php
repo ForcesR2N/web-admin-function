@@ -1,4 +1,4 @@
-{{-- resources/views/layouts/sidebar.blade.php - FULL CODE --}}
+{{-- resources/views/layouts/sidebar.blade.php --}}
 
 <button data-drawer-target="separator-sidebar" data-drawer-toggle="separator-sidebar" aria-controls="separator-sidebar" type="button" class="inline-flex items-center p-2 mt-2 ms-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
     <span class="sr-only">Open sidebar</span>
@@ -9,113 +9,88 @@
 
 <aside id="separator-sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0" aria-label="Sidebar">
     <div class="h-full px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800">
-        <a href="{{ route('dashboard') }}" class="flex items-center ps-2.5 mb-5">
-            <img src="{{ asset('img/function_team_logo.jpeg') }}" class="h-10 me-3 sm:h-11" />
-            <span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">ADMIN FUNCTION</span>
-        </a>
+        <div class="flex items-center ps-2.5 mb-6">
+            <img src="{{ asset('img/function_team_logo.jpeg') }}" class="h-10 me-3 sm:h-11" alt="Logo" />
+            <span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">ADMIN PANEL</span>
+        </div>
 
         <ul class="space-y-2 font-medium">
             <!-- Dashboard -->
             <li>
                 <a href="{{ route('dashboard') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group {{ request()->routeIs('dashboard') ? 'bg-gray-100 dark:bg-gray-700' : '' }}">
-                    <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                        <path fill-rule="evenodd" d="M11.293 3.293a1 1 0 0 1 1.414 0l6 6 2 2a1 1 0 0 1-1.414 1.414L19 12.414V19a2 2 0 0 1-2 2h-3a1 1 0 0 1-1-1v-3h-2v3a1 1 0 0 1-1 1H7a2 2 0 0 1-2-2v-6.586l-.293.293a1 1 0 0 1-1.414-1.414l2-2 6-6Z" clip-rule="evenodd"/>
+                    <svg class="w-5 h-5 text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition duration-75" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 21">
+                        <path d="M16.975 11H10V4.025a1 1 0 0 0-1.066-.998 8.5 8.5 0 1 0 9.039 9.039.999.999 0 0 0-1-1.066h.002Z"/>
+                        <path d="M12.5 0c-.157 0-.311.01-.565.027A1 1 0 0 0 11 1.02V10h8.975a1 1 0 0 0 1-.935c.013-.188.028-.374.028-.565A8.51 8.51 0 0 0 12.5 0Z"/>
                     </svg>
                     <span class="ms-3">Dashboard</span>
                 </a>
             </li>
 
-            <!-- Regular Booking (existing system) -->
-            <li>
-                <a href="{{ route('bookings.index') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group {{ request()->routeIs('booking.*') ? 'bg-gray-100 dark:bg-gray-700' : '' }}">
-                    <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                        <path fill-rule="evenodd" d="M5 5a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1h1a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1h1a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1 2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a2 2 0 0 1 2-2ZM3 19v-7a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Zm6.01-6a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm2 0a1 1 0 1 1 2 0 1 1 0 0 1-2 0Zm6 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm-10 4a1 1 0 1 1 2 0 1 1 0 0 1-2 0Zm6 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm2 0a1 1 0 1 1 2 0 1 1 0 0 1-2 0Z" clip-rule="evenodd"/>
-                    </svg>
-                    <span class="flex-1 ms-3 whitespace-nowrap">Jadwal Kegiatan</span>
-                </a>
-            </li>
-
             <!-- Mobile App Booking Requests -->
             <li>
-    <a href="{{ route('bookings.index') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group {{ request()->routeIs('bookings.*') ? 'bg-gray-100 dark:bg-gray-700' : '' }}">
-        <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M7 2.75C7 1.784 7.784 1 8.75 1h6.5c.966 0 1.75.784 1.75 1.75V4h3.25c.414 0 .75.336.75.75s-.336.75-.75.75H18v13.75c0 1.243-1.007 2.25-2.25 2.25h-7.5C7.007 21.25 6 20.243 6 19V5.5H3.25c-.414 0-.75-.336-.75-.75S2.836 4 3.25 4H6.5V2.75zM8.5 2.5v1.25h7V2.5h-7zM7.5 5.5V19c0 .414.336.75.75.75h7.5c.414 0 .75-.336.75-.75V5.5h-9z"/>
-            <path d="M12 7c.414 0 .75.336.75.75v4.5c0 .414-.336.75-.75.75s-.75-.336-.75-.75v-4.5c0-.414.336-.75.75-.75z"/>
-            <path d="M9.5 10c.414 0 .75.336.75.75v1.5c0 .414-.336.75-.75.75s-.75-.336-.75-.75v-1.5c0-.414.336-.75.75-.75z"/>
-            <path d="M14.5 10c.414 0 .75.336.75.75v1.5c0 .414-.336.75-.75.75s-.75-.336-.75-.75v-1.5c0-.414.336-.75.75-.75z"/>
-        </svg>
-        <span class="flex-1 ms-3 whitespace-nowrap">Mobile Booking Requests</span>
-        @php
-            $pendingCount = 0;
-            try {
-                // Try to get pending bookings count safely
-                if (Schema::hasTable('booking')) {
-                    $pendingCount = App\Models\Booking::where('is_confirmed', false)->count();
-                }
-            } catch (\Exception $e) {
-                // If table doesn't exist yet, show 0
-                $pendingCount = 0;
-            }
-        @endphp
-        @if($pendingCount > 0)
-            <span class="inline-flex items-center justify-center w-3 h-3 p-3 ms-3 text-xs font-medium text-blue-800 bg-blue-100 rounded-full dark:bg-blue-900 dark:text-blue-300">
-                {{ $pendingCount }}
-            </span>
-        @endif
-    </a>
-</li>
-
-            <!-- Rooms -->
-            <li>
-                <a href="{{ route('rooms.index') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group {{ request()->routeIs('rooms.*') ? 'bg-gray-100 dark:bg-gray-700' : '' }}">
-                    <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                        <path fill-rule="evenodd" d="M4 4a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4zm2 2v12h12V6H6zm2 3a1 1 0 0 1 1-1h4a1 1 0 1 1 0 2H9a1 1 0 0 1-1-1zm0 3a1 1 0 0 1 1-1h4a1 1 0 1 1 0 2H9a1 1 0 0 1-1-1zm0 3a1 1 0 0 1 1-1h4a1 1 0 1 1 0 2H9a1 1 0 0 1-1-1z" clip-rule="evenodd"/>
+                <a href="{{ route('bookings.index') }}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group {{ request()->routeIs('bookings.*') ? 'bg-gray-100 dark:bg-gray-700' : '' }}">
+                    <svg class="flex-shrink-0 w-5 h-5 text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition duration-75" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M5 5V.13a2.96 2.96 0 0 0-1.293.749L.879 3.707A2.96 2.96 0 0 0 .13 5H5Z"/>
+                        <path d="M6.737 11.061a2.961 2.961 0 0 1 .81-1.515l6.117-6.116A4.839 4.839 0 0 1 16 2.141V2a1.97 1.97 0 0 0-1.933-2H7v5a2 2 0 0 1-2 2H0v11a1.969 1.969 0 0 0 1.933 2h12.134A1.97 1.97 0 0 0 16 18v-3.093l-1.546 1.546c-.413.413-.94.695-1.513.81l-3.4.679a2.947 2.947 0 0 1-1.85-.227 2.96 2.96 0 0 1-1.635-3.257l.681-3.397Z"/>
+                        <path d="M8.961 16a.93.93 0 0 0 .189-.019l3.4-.679a.961.961 0 0 0 .49-.263l6.118-6.117a2.884 2.884 0 0 0-4.079-4.078l-6.117 6.117a.96.96 0 0 0-.263.491l-.679 3.4A.961.961 0 0 0 8.961 16Zm7.477-9.8a.958.958 0 0 1 .68-.281.961.961 0 0 1 .682 1.644l-.315.315-1.36-1.36.313-.318Zm-5.911 5.911 4.236-4.236 1.359 1.359-4.236 4.237-1.7.339.341-1.699Z"/>
                     </svg>
-                    <span class="flex-1 ms-3 whitespace-nowrap">Rooms</span>
+                    <span class="flex-1 ms-3 whitespace-nowrap">Booking Requests</span>
+                    @php
+                        $pendingCount = 0;
+                        try {
+                            if (class_exists('\App\Models\Booking')) {
+                                $pendingCount = \App\Models\Booking::where('is_confirmed', false)->count();
+                            }
+                        } catch (\Exception $e) {
+                            $pendingCount = 0;
+                        }
+                    @endphp
+                    @if($pendingCount > 0)
+                        <span class="inline-flex items-center justify-center w-5 h-5 ms-3 text-xs font-medium text-white bg-indigo-600 rounded-full">
+                            {{ $pendingCount }}
+                        </span>
+                    @endif
                 </a>
             </li>
         </ul>
 
-        <!-- Bottom Section -->
-        <ul class="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700">
-            <!-- Profile -->
-            <li>
-                <a href="{{ route('profile.edit') }}" class="flex items-center p-2 text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group {{ request()->routeIs('profile.*') ? 'bg-gray-100 dark:bg-gray-700' : '' }}">
-                    <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                        <path fill-rule="evenodd" d="M4 4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H4Zm10 5a1 1 0 0 1 1-1h3a1 1 0 1 1 0 2h-3a1 1 0 0 1-1-1Zm0 3a1 1 0 0 1 1-1h3a1 1 0 1 1 0 2h-3a1 1 0 0 1-1-1Zm0 3a1 1 0 0 1 1-1h3a1 1 0 1 1 0 2h-3a1 1 0 0 1-1-1Zm-8-5a3 3 0 1 1 6 0 3 3 0 0 1-6 0Zm1.942 4a3 3 0 0 0-2.847 2.051l-.044.133-.004.012c-.042.126-.055.167-.042.195.006.013.02.023.038.039.032.025.08.064.146.155A1 1 0 0 0 6 17h6a1 1 0 0 0 .811-.415.713.713 0 0 1 .146-.155c.019-.016.031-.026.038-.04.014-.027 0-.068-.042-.194l-.004-.012-.044-.133A3 3 0 0 0 10.059 14H7.942Z" clip-rule="evenodd"/>
-                    </svg>
-                    <span class="ms-3">{{ Auth::user()->name ?? 'Profile' }}</span>
-                </a>
-            </li>
-
-            <!-- Admin Info -->
+        <div class="pt-5 mt-5 space-y-2 border-t border-gray-200 dark:border-gray-700">
+            <a href="{{ route('profile.edit') }}" class="flex items-center p-2 text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group {{ request()->routeIs('profile.*') ? 'bg-gray-100 dark:bg-gray-700' : '' }}">
+                <svg class="flex-shrink-0 w-5 h-5 text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition duration-75" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
+                    <path d="M14 2a3.963 3.963 0 0 0-1.4.267 6.439 6.439 0 0 1-1.331 6.638A4 4 0 1 0 14 2Zm1 9h-1.264A6.957 6.957 0 0 1 15 15v2a2.97 2.97 0 0 1-.184 1H19a1 1 0 0 0 1-1v-1a5.006 5.006 0 0 0-5-5ZM6.5 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM8 10H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Z"/>
+                </svg>
+                <span class="flex-1 ms-3 whitespace-nowrap">Profile</span>
+            </a>
 
             @if(Session::has('fastapi_user'))
-    <div class="user-info px-4 py-2">
-        <p class="font-medium text-gray-800 dark:text-white">{{ Session::get('fastapi_user.username') }}</p>
-        <p class="text-xs text-gray-500">{{ Session::get('fastapi_user.email') }}</p>
-        <div class="mt-2">
-            <span class="inline-flex items-center px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
-                Admin
-            </span>
-        </div>
-    </div>
-@endif
+                <div class="p-3 mt-2 rounded-lg bg-gray-100 dark:bg-gray-700">
+                    <div class="flex items-center mb-2">
+                        <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white font-medium text-sm mr-3">
+                            {{ substr(Session::get('fastapi_user.username'), 0, 1) }}
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ Session::get('fastapi_user.username') }}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ Session::get('fastapi_user.email') }}</p>
+                            <div class="mt-1">
+                                <span class="inline-flex items-center px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
+                                    Admin
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
 
-            <!-- Logout -->
-            <li>
-    <a href="#"
-       class="flex items-center p-2 text-gray-900 transition duration-75 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-white group"
-       onclick="event.preventDefault(); document.getElementById('api-logout-form').submit();">
-        <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12H4m12 0-4 4m4-4-4-4m3-4h2a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3h-2"/>
-        </svg>
-        <span class="ms-3">Log-out</span>
-    </a>
-    <form id="api-logout-form" method="POST" action="{{ route('api.logout') }}" style="display: none;">
-        @csrf
-    </form>
-</li>
-        </ul>
+            <a href="#" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+               onclick="event.preventDefault(); document.getElementById('api-logout-form').submit();">
+                <svg class="flex-shrink-0 w-5 h-5 text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition duration-75" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 16">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 8h11m0 0L8 4m4 4-4 4m4-11h3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-3"/>
+                </svg>
+                <span class="flex-1 ms-3 whitespace-nowrap">Sign Out</span>
+            </a>
+            <form id="api-logout-form" method="POST" action="{{ route('api.logout') }}" class="hidden">
+                @csrf
+            </form>
+        </div>
     </div>
 </aside>
